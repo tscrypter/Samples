@@ -7,6 +7,9 @@ using Steeltoe.CloudFoundry.Connector.EFCore;
 using Steeltoe.CloudFoundry.Connector.MySql;
 using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
 using Steeltoe.Common.HealthChecks;
+using Steeltoe.Management.Endpoint.CloudFoundry;
+using Steeltoe.Management.Endpoint.Health;
+using Steeltoe.Management.Endpoint.Hypermedia;
 using Steeltoe.Management.Endpoint.Info;
 using Steeltoe.Management.Endpoint.Metrics;
 using Steeltoe.Management.TaskCore;
@@ -39,7 +42,10 @@ namespace CloudFoundry
             // Add your own IHealthContributor, registered with the interface
             services.AddSingleton<IHealthContributor, CustomHealthContributor>();
 
-            services.AddMetricsActuator(Configuration);
+           // services.AddHypermediaActuator(Configuration);
+            services.AddInfoActuator(Configuration);
+            services.AddHealthActuator(Configuration);
+            services.AddPrometheusActuator(Configuration);
             // Add management components which collect and forwards metrics to 
             // the Cloud Foundry Metrics Forwarder service
             // services.AddMetricsForwarderExporter(Configuration);
@@ -68,7 +74,9 @@ namespace CloudFoundry
 
             // Add metrics collection to the app
             // Remove comment below to enable
-            // app.UseMetricsActuator();
+             app.UseInfoActuator();
+             app.UseHealthActuator();
+             app.UsePrometheusActuator();
 #if NETCOREAPP3_1
             app.UseRouting();
             app.UseEndpoints(endpoints => endpoints.MapDefaultControllerRoute());

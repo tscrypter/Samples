@@ -15,7 +15,7 @@ namespace CloudFoundry
                 .AddCloudFoundry()              // config
                 .UseCloudFoundryHosting()       // listen on port defined in env var 'PORT'
                 .ConfigureLogging((context, builder) => builder.AddSerilogDynamicConsole())
-                .AddCloudFoundryActuators()     // add actuators - should come AFTER Serilog config or else DynamicConsoleLogger will be injected
+             //   .AddCloudFoundryActuators()     // add actuators - should come AFTER Serilog config or else DynamicConsoleLogger will be injected
                 .UseStartup<Startup>()
                 .Build();
 
