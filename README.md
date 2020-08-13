@@ -3,7 +3,7 @@
 This repository contains a variety of sample applications illustrating how to use the Steeltoe frameworks:
 
 * [Configuration](Configuration) - samples using the Spring Cloud Config Server and other Steeltoe configuration providers.
-* [Discovery](Discovery) - sampless using Steeltoe Service Discovery microservices-based application.
+* [Discovery](Discovery) - samples using Steeltoe Service Discovery microservices-based application.
 * [Management](Management) - samples using the Steeltoe Management packages for adding Management REST endpoints to your application as well as adding Distributed Tracing support.
 * [Connectors](Connectors) - samples using the Steeltoe Connectors for connecting to backing services. Steeltoe Connectors simplify the coding process of binding to and accessing Cloud Foundry based services.
 * [CircuitBreaker](CircuitBreaker) - samples using the Steeltoe Circuit Breaker packages for building scalable and resilient microservices-based application.
