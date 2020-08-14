@@ -7,9 +7,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Http" Version="$(AspNetCoreVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="$(AspNetCoreVersion)" />
-    <PackageReference Include="Steeltoe.Common.Hosting" Version="3.0.0-rc1" />
-    <PackageReference Include="Steeltoe.Discovery.Kubernetes" Version="3.0.0-rc1" />
-    <PackageReference Include="Steeltoe.Extensions.Configuration.CloudFoundryCore" Version="3.0.0-rc1" />
-    <PackageReference Include="Steeltoe.Discovery.ClientCore" Version="3.0.0-rc1" />
+    <PackageReference Include="Steeltoe.Common.Hosting" Version="$(SteeltoeVersion)" />
+    <PackageReference Include="Steeltoe.Discovery.Kubernetes" Version="$(SteeltoeVersion)" />
+    <PackageReference Include="Steeltoe.Extensions.Configuration.CloudFoundryCore" Version="$(SteeltoeVersion)" />
+    <PackageReference Include="Steeltoe.Discovery.ClientCore" Version="$(SteeltoeVersion)" />
   </ItemGroup>
 </Project>
