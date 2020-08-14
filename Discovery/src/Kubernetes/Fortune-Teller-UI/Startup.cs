@@ -6,7 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Steeltoe.Common.Http.Discovery;
 using System;
-using Steeltoe.Discovery.Client;
+using Steeltoe.Management.Endpoint.Health;
+using Steeltoe.Management.Endpoint.Hypermedia;
 
 namespace Fortune_Teller_UI
 {
@@ -22,7 +23,9 @@ namespace Fortune_Teller_UI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddServiceDiscovery();
+            services.AddHealthActuator(Configuration);
+            services.AddHypermediaActuator(Configuration);
+            
             services.AddHttpClient("fortunes", c =>
                 {
                     c.BaseAddress = new Uri("http://fortune-teller-service/api/fortunes/");
