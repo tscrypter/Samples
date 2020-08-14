@@ -43,7 +43,7 @@ spec:
             port: 80
           initialDelaySeconds: 15
         ports:
-          - 80
+          - containerPort: 80
 ---
 apiVersion: v1
 kind: Service
@@ -80,4 +80,4 @@ spec:
         - image: tscrypter/fortunetelleruik8s:latest
           name: fortune-teller-ui
           ports:
-            - 80
+            - containerPort: 80
