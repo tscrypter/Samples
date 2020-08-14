@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Steeltoe.Common.Hosting;
 using Steeltoe.Discovery.Client;
-using Steeltoe.Discovery.Eureka;
+using Steeltoe.Discovery.Kubernetes;
 using Steeltoe.Extensions.Configuration.CloudFoundry;
 using Steeltoe.Extensions.Configuration.Placeholder;
 
@@ -20,7 +20,7 @@ namespace FortuneTellerService
                 .ConfigureWebHostDefaults(host => host.UseStartup<Startup>())
                 .AddCloudFoundryConfiguration()
                 .AddPlaceholderResolver()
-                .AddServiceDiscovery(options => options.UseEureka())
+                .AddServiceDiscovery(options => options.UseKubernetes())
                 .UseCloudHosting(5000)
                 .Build();
 
