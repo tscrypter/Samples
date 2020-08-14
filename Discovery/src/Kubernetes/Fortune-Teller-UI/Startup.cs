@@ -23,7 +23,7 @@ namespace Fortune_Teller_UI
         {
             services.AddHttpClient("fortunes", c =>
                 {
-                    c.BaseAddress = new Uri("http://fortuneService/api/fortunes/");
+                    c.BaseAddress = new Uri("http://fortune-teller-service/api/fortunes/");
                 })
                 .AddHttpMessageHandler<DiscoveryHttpMessageHandler>()
                 .AddTypedClient<IFortuneService, FortuneService>();

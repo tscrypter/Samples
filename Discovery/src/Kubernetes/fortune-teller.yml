@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: fortune-teller-service
+  name: fortune-teller-service
+  namespace: default
+spec:
+  ports:
+    - name: http
+      port: 80
+  selector:
+    app: fortune-teller-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: fortune-teller-service
+  name: fortune-teller-service
+spec:
+  replicas: 1
+  selector: 
+    matchLabels:
+      app: fortune-teller-service
+  template:
+    metadata:
+      labels:
+        app: fortune-teller-service
+    spec:
+      containers:
+      - image: tscrypter/fortunetellerservicek8s:latest
+        name: fortune-teller-service
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 80
+          initialDelaySeconds: 15
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 80
+          initialDelaySeconds: 15
+        ports:
+          - 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: fortune-teller-ui
+  name: fortune-teller-ui
+  namespace: default
+spec:
+  ports:
+    - name: http
+      port: 80
+  type: LoadBalancer
+  selector:
+    app: fortune-teller-ui
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: fortune-teller-ui
+  name: fortune-teller-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fortune-teller-ui
+  template:
+    metadata:
+      labels:
+        app: fortune-teller-ui
+    spec:
+      containers:
+        - image: tscrypter/fortunetelleruik8s:latest
+          name: fortune-teller-ui
+          ports:
+            - 80
