@@ -29,7 +29,7 @@ spec:
         app: fortune-teller-service
     spec:
       containers:
-      - image: tscrypter/fortunetellerservicek8s:latest
+      - image: tscrypter/fortunetellerservicek8s:latest # TODO: update image repository
         name: fortune-teller-service
         livenessProbe:
           httpGet:
@@ -77,7 +77,7 @@ spec:
         app: fortune-teller-ui
     spec:
       containers:
-        - image: tscrypter/fortunetelleruik8s:latest
+        - image: tscrypter/fortunetelleruik8s:latest  # TODO: update image repository
           name: fortune-teller-ui
           ports:
             - containerPort: 80
