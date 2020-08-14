@@ -16,7 +16,6 @@ namespace Fortune_Teller_UI
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                     .AddCloudFoundryConfiguration()
-                    .AddDiscoveryClient()
                     .UseStartup<Startup>()
                     .UseCloudHosting(5555)
                     .Build();
