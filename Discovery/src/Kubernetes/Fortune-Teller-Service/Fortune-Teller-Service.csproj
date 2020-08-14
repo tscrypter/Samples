@@ -23,5 +23,6 @@
     <PackageReference Include="Steeltoe.Discovery.Kubernetes" Version="3.0.0-rc1" />
     <PackageReference Include="Steeltoe.Extensions.Configuration.CloudFoundryCore" Version="3.0.0-rc1" />
     <PackageReference Include="Steeltoe.Extensions.Configuration.PlaceholderCore" Version="3.0.0-rc1" />
+    <PackageReference Include="Steeltoe.Management.EndpointCore" Version="3.0.0-rc1" />
   </ItemGroup>
 </Project>
