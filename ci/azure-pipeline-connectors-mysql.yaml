@@ -1,11 +1,11 @@
 trigger:
   branches:
     include:
-      - 2.x
+      - master
   paths:
     include:
       - config/*
-      - Connectors/src/AspDotNetCore/MySql/*
+      - Connectors/src/MySql/*
 
 # skip pipeline for PRs
 pr: none

@@ -1,11 +1,11 @@
 trigger:
   branches:
     include:
-      - 2.x
+      - master
   paths:
     include:
       - config/*
-      - Connectors/src/AspDotNetCore/PostgreEFCore/*
+      - Connectors/src/PostgreEFCore/*
 
 # skip pipeline for PRs
 pr: none

@@ -1,11 +1,11 @@
-﻿using MusicStoreUI.Services;
+using MusicStoreUI.Services;
 using MusicStoreUI.Models;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Steeltoe.Connector.SqlServer.EFCore;
 using Steeltoe.Discovery.Client;
 
 #if USE_REDIS_CACHE
@@ -14,10 +14,19 @@ using Steeltoe.CloudFoundry.Connector.Redis;
 using Steeltoe.Security.DataProtection;
 #endif
 
-using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
 using Steeltoe.Management.CloudFoundry;
 using Steeltoe.CircuitBreaker.Hystrix;
 using Command = MusicStoreUI.Services.HystrixCommands;
+using Microsoft.EntityFrameworkCore;
+using Steeltoe.Common.Http.Discovery;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Steeltoe.Management.Endpoint.Env;
+using Steeltoe.Management.Endpoint.Refresh;
+// using Steeltoe.Management.Exporter.Tracing;
+using Steeltoe.Management.Tracing;
+using Steeltoe.Common;
+using Steeltoe.Extensions.Configuration.CloudFoundry;
+// using Steeltoe.Management.Exporter.Tracing.Zipkin;
 
 namespace MusicStoreUI
 {
@@ -28,11 +37,20 @@ namespace MusicStoreUI
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        public static IConfiguration Configuration { get; private set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // this should be done automatically by Steeltoe somewhere else! Zipkin throws without it
+            if (Platform.IsCloudFoundry)
+            {
+                services.RegisterCloudFoundryApplicationInstanceInfo();
+            }
+            else
+            {
+                services.GetApplicationInstanceInfo();
+            }
 
             // Add framework services.
 #if USE_REDIS_CACHE
@@ -47,28 +65,47 @@ namespace MusicStoreUI
 
             // Add managment endpoint services
             services.AddCloudFoundryActuators(Configuration);
+            services.AddEnvActuator(Configuration);
+            services.AddRefreshActuator(Configuration);
 
             services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
 
-            services.AddDbContext<AccountsContext>(options => options.UseMySql(Configuration));
+            // var cstring = new ConnectionStringManager(Configuration).Get<SqlServerConnectionInfo>().ConnectionString;
+            // Console.WriteLine("Using SQL Connection: {0}", cstring);
+            // services.AddDbContext<AccountsContext>(options => options.UseSqlServer(cstring));
+            services.AddDbContext<AccountsContext>(options => options.UseSqlServer(Configuration));
             services.ConfigureApplicationCookie(options => options.AccessDeniedPath = "/Home/AccessDenied");
-            services.AddIdentity<ApplicationUser, ApplicationRole>()
+            services.AddIdentity<ApplicationUser, IdentityRole>()
                     .AddEntityFrameworkStores<AccountsContext>()
                     .AddDefaultTokenProviders();
             services.ConfigureApplicationCookie(options => options.LoginPath = "/Account/LogIn");
 
-            services.AddDiscoveryClient(Configuration);
+            if (!Configuration.GetValue<bool>("DisableServiceDiscovery"))
+            {
+                services.AddDiscoveryClient(Configuration);
+            }
+            else
+            {
+                services.AddConfigurationDiscoveryClient(Configuration);
+                services.TryAddTransient<DiscoveryHttpMessageHandler>();
+            }
 
-            services.AddSingleton<IMusicStore, MusicStoreService>();
-            services.AddSingleton<IShoppingCart, ShoppingCartService>();
-            services.AddSingleton<IOrderProcessing, OrderProcessingService>();
+            services.AddDistributedTracing(Configuration, builder => builder.UseZipkinWithTraceOptions(services));
+
+            services.AddHttpClient<IMusicStore, MusicStoreService>()
+                .AddHttpMessageHandler<DiscoveryHttpMessageHandler>();
+            services.AddHttpClient<IShoppingCart, ShoppingCartService>()
+                .AddHttpMessageHandler<DiscoveryHttpMessageHandler>();
+            services.AddHttpClient<IOrderProcessing, OrderProcessingService>()
+                .AddHttpMessageHandler<DiscoveryHttpMessageHandler>();
+
 
             services.AddHystrixCommand<Command.GetTopAlbums>("MusicStore", Configuration);
             services.AddHystrixCommand<Command.GetGenres>("MusicStore", Configuration);
             services.AddHystrixCommand<Command.GetGenre>("MusicStore", Configuration);
             services.AddHystrixCommand<Command.GetAlbum>("MusicStore", Configuration);
 
-            services.AddMvc();
+            services.AddControllersWithViews();
 
             // Add memory cache services
             services.AddMemoryCache();
@@ -97,17 +134,19 @@ namespace MusicStoreUI
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             // Add Hystrix Metrics context to pipeline
             app.UseHystrixRequestContext();
 
             // Add management endpoints into pipeline
             app.UseCloudFoundryActuators();
+            app.UseEnvActuator();
+            app.UseRefreshActuator();
 
             app.UseSession();
 
-            if (env.IsDevelopment())
+            if (env.EnvironmentName == "Development")
             {
                 app.UseDeveloperExceptionPage();
             }
@@ -118,23 +157,29 @@ namespace MusicStoreUI
 
             app.UseStaticFiles();
 
+            app.UseRouting();
+
             // Add cookie-based authentication to the request pipeline
             app.UseAuthentication();
+            app.UseAuthorization();
 
-            app.UseMvc(routes =>
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapRoute(
+                endpoints.MapControllerRoute(
                     name: "areaRoute",
-                    template: "{area:exists}/{controller}/{action}",
+                    pattern: "{area:exists}/{controller}/{action}",
                     defaults: new { action = "Index" });
 
-                routes.MapRoute(
+                endpoints.MapControllerRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
             });
 
-            app.UseDiscoveryClient();
-
+            if (!Configuration.GetValue<bool>("DisableServiceDiscovery"))
+            {
+                app.UseDiscoveryClient();
+            }
+            
             // Startup Hystrix metrics stream
             app.UseHystrixMetricsStream();
         }

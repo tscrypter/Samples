@@ -219,3 +219,5 @@ git.properties
 Pivotal.GemFire.dll
 pivnet*
 pivotal*.zip
+
+GeneratedCertificates/
