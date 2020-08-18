@@ -53,7 +53,7 @@ spec:
         app: fortune-teller-service
     spec:
       containers:
-        - image: <registry>/fortunetellerservicek8s:latest # TODO: update image repository
+        - image: tscrypter/fortunetellerservicek8s:latest # TODO: update image repository
           name: fortune-teller-service
           livenessProbe:
             httpGet:
@@ -101,11 +101,13 @@ spec:
         app: fortune-teller-ui
     spec:
       containers:
-        - image: <registry>/fortunetelleruik8s:latest  # TODO: update image repository
+        - image: tscrypter/fortunetelleruik8s:latest  # TODO: update image repository
           name: fortune-teller-ui
-          environment:
-            - "spring__cloud__kubernetes__discovery__enabled=true"
-            - "spring__cloud__kubernetes__discovery__serviceName=fortune-teller-ui"
+          env:
+            - name: "spring__cloud__kubernetes__discovery__enabled"
+              value: "true"
+            - name: "spring__cloud__kubernetes__discovery__serviceName"
+              value: "fortune-teller-ui"
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
